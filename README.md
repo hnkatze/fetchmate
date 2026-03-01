@@ -25,7 +25,7 @@ A typed HTTP client built on the Fetch API — with response validation, reactiv
 ## Installation
 
 ```bash
-npm install fetchmate
+npm install @hnkatze/fetchmate
 ```
 
 Angular peer dependencies (only required for the Angular integration):
@@ -37,7 +37,7 @@ npm install @angular/core @angular/common rxjs
 ## Quick Start
 
 ```typescript
-import { createFetchMate } from 'fetchmate';
+import { createFetchMate } from '@hnkatze/fetchmate';
 
 const api = createFetchMate({
   baseUrl: 'https://api.example.com/v1',
@@ -200,7 +200,7 @@ users.mutate([...users.data!, newUser]);
 Also available as a standalone factory:
 
 ```typescript
-import { createResource } from 'fetchmate';
+import { createResource } from '@hnkatze/fetchmate';
 
 const users = createResource<User[]>(api, '/users', { query: { active: true } });
 ```
@@ -279,7 +279,7 @@ If `errorTransform` throws, fetchmate falls back to the raw response body — yo
 #### Full error handling example
 
 ```typescript
-import { HttpError, TimeoutError, NetworkError, ValidationError } from 'fetchmate';
+import { HttpError, TimeoutError, NetworkError, ValidationError } from '@hnkatze/fetchmate';
 
 try {
   const user = await api.get<User>('/users/999');
@@ -516,14 +516,14 @@ response.data;    // User (after transform)
 
 ## Angular
 
-The `fetchmate/angular` entry point provides an Angular-native integration built on `HttpClient`.
+The `@hnkatze/fetchmate/angular` entry point provides an Angular-native integration built on `HttpClient`.
 
 ### Setup
 
 ```typescript
 // app.config.ts
 import { provideHttpClient } from '@angular/common/http';
-import { provideFetchMate } from 'fetchmate/angular';
+import { provideFetchMate } from '@hnkatze/fetchmate/angular';
 
 export const appConfig = {
   providers: [
@@ -540,7 +540,7 @@ export const appConfig = {
 
 ```typescript
 import { inject } from '@angular/core';
-import { NgFetchMate } from 'fetchmate/angular';
+import { NgFetchMate } from '@hnkatze/fetchmate/angular';
 
 export class UsersComponent {
   private readonly http = inject(NgFetchMate);
@@ -569,7 +569,7 @@ Uses Angular's `httpResource` under the hood — the request re-fires automatica
 
 ```typescript
 import { signal, computed } from '@angular/core';
-import { NgFetchMate } from 'fetchmate/angular';
+import { NgFetchMate } from '@hnkatze/fetchmate/angular';
 
 export class UserProfile {
   private readonly http = inject(NgFetchMate);
@@ -683,14 +683,14 @@ import type {
   ResponseContext,
   Resource,
   ResourceState,
-} from 'fetchmate';
+} from '@hnkatze/fetchmate';
 
 // Angular types
 import type {
   NgFetchMateConfig,
   NgResourceOptions,
   NgMutationResult,
-} from 'fetchmate/angular';
+} from '@hnkatze/fetchmate/angular';
 ```
 
 ---
