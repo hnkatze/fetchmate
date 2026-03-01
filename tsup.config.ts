@@ -26,6 +26,7 @@ export default defineConfig([
     treeshake: true,
     external: [
       '@angular/core',
+      '@angular/core/rxjs-interop',
       '@angular/common',
       '@angular/common/http',
       'rxjs',

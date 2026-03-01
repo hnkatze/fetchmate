@@ -1,5 +1,5 @@
 {
-  "name": "fetchmate",
+  "name": "@hnkatze/fetchmate",
   "version": "1.0.0",
   "description": "Typed HTTP client with interceptors, retry, cache, and Angular support",
   "keywords": [
@@ -11,10 +11,19 @@
     "interceptors",
     "retry",
     "cache",
-    "angular"
+    "angular",
+    "signals"
   ],
-  "author": "",
+  "author": "hnkatze",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hnkatze/fetchmate.git"
+  },
+  "homepage": "https://github.com/hnkatze/fetchmate#readme",
+  "bugs": {
+    "url": "https://github.com/hnkatze/fetchmate/issues"
+  },
   "type": "module",
   "exports": {
     ".": {

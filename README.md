@@ -19,7 +19,7 @@ A typed HTTP client built on the Fetch API — with response validation, reactiv
 - **Timeout** — global default plus per-request override, merged with AbortSignal
 - **Path & query params** — `:id` substitution, array serialization
 - **Child clients** — `extend()` inherits config, interceptors, and all options
-- **Angular support** — `NgFetchMate` service with Observable-based API
+- **Angular support** — `NgFetchMate` service with Observable and Signal-based APIs
 - **Zero dependencies** — core uses only the native Fetch API
 
 ## Installation
@@ -559,6 +559,106 @@ export class UsersComponent {
 
 All methods return `Observable<T>` and support the same options as the core client (params, query, body, headers, timeout, retry).
 
+### Signal-based API (Angular >=19.2)
+
+For projects using Angular's full signals approach, `NgFetchMate` also provides signal-based methods that coexist with the Observable API.
+
+#### Reactive GET with `resource()`
+
+Uses Angular's `httpResource` under the hood — the request re-fires automatically when signals in the URL factory change:
+
+```typescript
+import { signal, computed } from '@angular/core';
+import { NgFetchMate } from 'fetchmate/angular';
+
+export class UserProfile {
+  private readonly http = inject(NgFetchMate);
+
+  readonly userId = signal(1);
+  readonly user = this.http.resource<User>(() => `/users/${this.userId()}`);
+}
+```
+
+```html
+@if (user.hasValue()) {
+  <h1>{{ user.value().name }}</h1>
+} @else if (user.isLoading()) {
+  <spinner />
+} @else if (user.error()) {
+  <error-message [error]="user.error()" />
+}
+```
+
+The returned `HttpResourceRef<T>` exposes signals: `value()`, `isLoading()`, `error()`, `hasValue()`, and a `reload()` method.
+
+#### Resource options
+
+```typescript
+// With path params and query
+readonly posts = this.http.resource<Post[]>(
+  () => `/users/${this.userId()}/posts`,
+  {
+    params: { userId: this.userId() },
+    query: { limit: 10 },
+  },
+);
+
+// With response validation (e.g., Zod)
+readonly user = this.http.resource<User>(
+  () => `/users/${this.userId()}`,
+  { parse: userSchema.parse },
+);
+
+// With default value (removes undefined from type)
+readonly users = this.http.resource<User[]>(
+  () => '/users',
+  { defaultValue: [] },
+);
+
+// Return undefined to skip the request (resource stays idle)
+readonly user = this.http.resource<User>(
+  () => this.userId() ? `/users/${this.userId()}` : undefined,
+);
+```
+
+#### Signal-based mutations
+
+For POST, PUT, PATCH, and DELETE, use the signal mutation methods. They reuse the same Observable pipeline (timeout, retry, error mapping) and expose the result as signals:
+
+```typescript
+export class UserForm {
+  private readonly http = inject(NgFetchMate);
+
+  save(data: CreateUser) {
+    const result = this.http.postSignal<User>('/users', { body: data });
+
+    // result.value()     — Signal<User | undefined>
+    // result.error()     — Signal<HttpError | undefined>
+    // result.isLoading() — Signal<boolean>
+    return result;
+  }
+}
+```
+
+All mutation methods:
+
+```typescript
+http.postSignal<T>(path, options?)    // → NgMutationResult<T>
+http.putSignal<T>(path, options?)     // → NgMutationResult<T>
+http.patchSignal<T>(path, options?)   // → NgMutationResult<T>
+http.deleteSignal<T>(path, options?)  // → NgMutationResult<T>
+```
+
+#### `NgMutationResult<T>`
+
+| Signal | Type | Description |
+|--------|------|-------------|
+| `value` | `Signal<T \| undefined>` | Response data (undefined while loading or on error) |
+| `error` | `Signal<HttpError \| undefined>` | Error (undefined on success) |
+| `isLoading` | `Signal<boolean>` | Whether the request is in flight |
+
+> **Note**: Signal-based methods require Angular >=19.2. Observable methods (`get`, `post`, `put`, `patch`, `delete`) continue to work on Angular >=17.
+
 ---
 
 ## TypeScript
@@ -566,6 +666,7 @@ All methods return `Observable<T>` and support the same options as the core clie
 ### Exported types
 
 ```typescript
+// Core types
 import type {
   FetchMateConfig,
   FetchMateInstance,
@@ -583,6 +684,13 @@ import type {
   Resource,
   ResourceState,
 } from 'fetchmate';
+
+// Angular types
+import type {
+  NgFetchMateConfig,
+  NgResourceOptions,
+  NgMutationResult,
+} from 'fetchmate/angular';
 ```
 
 ---
